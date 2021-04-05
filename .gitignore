@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VS code extension
+.vscode/
+
+# PyCache
+__pycache__/
