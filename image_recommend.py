@@ -11,10 +11,7 @@ class ImageRecommender():
 
     def __init__(self):
         self.img_width, self.img_height, self._ = 224, 224, 3
-        embeddings_file = 'map_embeddings.npy'
-        with open(embeddings_file, 'rb') as handle:
-            my_array = pkl.load(handle)
-        self.map_embeddings = np.array(my_array)
+        self.map_embeddings = np.load('map_embeddings.npy', allow_pickle=False)
         images = pd.read_csv('images.csv')
         self.images = images['0']
         self.df = pd.read_csv('images_df.csv')
