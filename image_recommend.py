@@ -11,17 +11,16 @@ class ImageRecommender():
 
     def __init__(self):
         self.img_width, self.img_height, self._ = 224, 224, 3
-        self.map_embeddings = np.load('map_embeddings.npy', encoding='latin1', allow_pickle=True).item()
+        self.map_embeddings = pd.read_csv('map_embeddings.csv')
+        self.map_embeddings.drop('Unnamed: 0', axis=1, inplace=True)
         images = pd.read_csv('images.csv')
         self.images = images['0']
         self.df = pd.read_csv('images_df.csv')
         self.model = keras.models.load_model('embedding_model.h5')
 
-    def find_cosine_similarity(self, embs, img_emb):
-        cos_sim = []
-        for emb in embs:
-            cos_sim.append(1-(np.dot(emb,img_emb)/(np.linalg.norm(emb) * np.linalg.norm(img_emb))))
-        return np.array(cos_sim)
+    def find_cosine_similarity(self, img_emb):
+        cos_sim = np.dot(self.map_embeddings, img_emb)/(np.linalg.norm(self.map_embeddings)*np.linalg.norm(img_emb))
+        return 1-cos_sim
 
     def get_custom_embedding(self, img_path):
         # Reshape
@@ -36,7 +35,7 @@ class ImageRecommender():
 
     def get_similar_images(self, img_path):
         emb = self.get_custom_embedding(img_path)
-        most_similar = np.argsort(self.find_cosine_similarity(self.map_embeddings, emb))[:5]
+        most_similar = np.argsort(self.find_cosine_similarity(emb))[:5]
         image_paths = []
         for x in most_similar:
             image_paths.append(self.images[x])
