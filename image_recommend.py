@@ -15,7 +15,8 @@ class ImageRecommender():
         images = pd.read_csv('images.csv')
         self.images = images['0']
         self.df = pd.read_csv('images_df.csv')
-        self.model = keras.models.load_model('embedding_model.h5')
+        MODEL_PATH = 'embedding_model.h5'
+        self.model = keras.models.load_model(MODEL_PATH)
 
     def find_cosine_similarity(self, img_emb):
         cos_sim = np.dot(self.map_embeddings, img_emb)/(np.linalg.norm(self.map_embeddings)*np.linalg.norm(img_emb))
