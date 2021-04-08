@@ -11,12 +11,8 @@ class ImageRecommender():
 
     def __init__(self):
         self.img_width, self.img_height, self._ = 224, 224, 3
-<<<<<<< HEAD
         self.map_embeddings = pd.read_csv('map_embeddings.csv')
         self.map_embeddings.drop('Unnamed: 0', axis=1, inplace=True)
-=======
-        self.map_embeddings = np.load('map_embeddings.npy', encoding='latin1', allow_pickle=True)
->>>>>>> 45487c436dc6e34b55235f178c0dc0420f393b5b
         images = pd.read_csv('images.csv')
         self.images = images['0']
         self.df = pd.read_csv('images_df.csv')
