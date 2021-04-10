@@ -1,6 +1,8 @@
 import numpy as np 
 import pandas as pd
-import pickle as pkl 
+import boto3
+import h5py
+import s3fs
 
 import tensorflow as tf
 from tensorflow import keras
@@ -11,12 +13,21 @@ class ImageRecommender():
 
     def __init__(self):
         self.img_width, self.img_height, self._ = 224, 224, 3
-        self.map_embeddings = pd.read_csv('map_embeddings.csv')
-        images = pd.read_csv('images.csv')
+        client = boto3.client('s3', aws_access_key_id='AKIARC7KQI32LXU4YUMW', aws_secret_access_key='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')
+        bucket = 'fashion-api-assets'
+        images_df = client.get_object(Bucket=bucket, Key='images_df.csv')
+        self.df = pd.read_csv(images_df['Body'])
+        images = client.get_object(Bucket=bucket, Key='images.csv')
+        images = pd.read_csv(images['Body'])
         self.images = images['0']
-        self.df = pd.read_csv('images_df.csv')
-        MODEL_PATH = 'embedding_model.h5'
-        self.model = keras.models.load_model(MODEL_PATH)
+        print(self.images.shape)
+        print(self.df.shape)
+        s3 = s3fs.S3FileSystem(anon=False, key='AKIARC7KQI32LXU4YUMW', secret='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')
+        self.model = h5py.File(s3.open("s3://fashion-api-assets/embedding_model.h5", 'rb'))
+        print('All files loaded!!!!')
+        maps = client.get_object(Bucket=bucket, Key='map_embeddings.csv')
+        self.map_embeddings = pd.read_csv(maps['Body'])
+        print(self.map_embeddings.shape)
 
     def find_cosine_similarity(self, img_emb):
         cos_sim = np.dot(self.map_embeddings, img_emb)/(np.linalg.norm(self.map_embeddings)*np.linalg.norm(img_emb))
