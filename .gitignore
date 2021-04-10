@@ -133,3 +133,5 @@ dmypy.json
 
 # PyCache
 __pycache__/
+
+config.py
