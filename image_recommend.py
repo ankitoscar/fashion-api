@@ -1,6 +1,5 @@
 import numpy as np 
 import pandas as pd
-import boto3
 import h5py
 import s3fs
 import config
@@ -18,10 +17,13 @@ class ImageRecommender():
         self.images = pd.read_csv(s3.open('s3://fashion-api-assets/images.csv'))
         self.df = pd.read_csv(s3.open('s3://fashion-api-assets/images_df.csv'))
         print(self.images.shape, self.df.shape)
-        self.model = keras.models.load_model(h5py.File(s3.open("s3://fashion-api-assets/embedding_model.h5", 'rb')))
-        print('All files loaded!!!!')
-        self.map_embeddings = pd.read_csv(s3.open('s3://fashion-api-assets/map_embeddings.csv'))
+        chunk = pd.read_csv(s3.open('s3://fashion-api-assets/map_embeddings.csv'), chunksize=10000)
+        self.map_embeddings = pd.concat(chunk)
+        self.map_embeddings.drop('Unnamed: 0', axis=1, inplace=True)
         print(self.map_embeddings.shape)
+        self.model = h5py.File(s3.open("s3://fashion-api-assets/embedding_model.h5", 'rb'))
+        print('All files loaded!!!!')
+
 
     def find_cosine_similarity(self, img_emb):
         cos_sim = np.dot(self.map_embeddings, img_emb)/(np.linalg.norm(self.map_embeddings)*np.linalg.norm(img_emb))
@@ -51,5 +53,3 @@ class ImageRecommender():
                     links.append(self.df['link'].iloc[i])
         
         return links
-
-x = ImageRecommender()
