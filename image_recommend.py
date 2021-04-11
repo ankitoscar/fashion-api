@@ -2,18 +2,21 @@ import numpy as np
 import pandas as pd
 import h5py
 import s3fs
-import config
+import os
 
 import tensorflow as tf
 from tensorflow import keras
 from keras.preprocessing import image
 from keras.applications.resnet50 import preprocess_input
 
+aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
 class ImageRecommender():
 
     def __init__(self):
         self.img_width, self.img_height, self._ = 224, 224, 3
-        s3 = s3fs.S3FileSystem(anon=False, key=config.aws_access_key, secret=config.aws_secret_access_key)
+        s3 = s3fs.S3FileSystem(anon=False, key=aws_access_key, secret=aws_secret_access_key)
         self.images = pd.read_csv(s3.open('s3://fashion-api-assets/images.csv'))
         self.df = pd.read_csv(s3.open('s3://fashion-api-assets/images_df.csv'))
         print(self.images.shape, self.df.shape)
